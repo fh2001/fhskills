@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-A股港股行情查询 Plus - 使用国内数据源
+A股港股行情查询 - 使用国内免费（大陆股市：新浪数据源,香港股市：东方财富数据源）
 """
 
 import sys
@@ -147,62 +147,21 @@ def get_hk_stock_eastmoney(symbol: str) -> str:
     except Exception as e:
         return None, str(e)
 
-def get_hk_stock_tencent(code):
-    """获取港股数据 - 腾讯"""
-    hk_code = code.replace('.HK', '')
-    url = f"http://qt.gtimg.cn/q={hk_code}"
-    
-    try:
-        resp = requests.get(url, timeout=5)
-        resp.encoding = 'gbk'
-        
-        parts = resp.text.split('~')
-        if len(parts) < 32:
-            return None, "数据格式错误"
-        
-        name = parts[1]
-        current_price = float(parts[3])
-        open_price = float(parts[5])
-        high = float(parts[33])
-        low = float(parts[34])
-        volume = int(parts[36]) / 100 / 10000
-        amount = float(parts[37]) / 10000
-        change = float(parts[32])
-        change_pct = float(parts[31])
-        
-        return {
-            "name": name,
-            "code": code,
-            "market": "港股",
-            "current": current_price,
-            "open": open_price,
-            "high": high,
-            "low": low,
-            "change": round(change, 2),
-            "change_pct": round(change_pct, 2),
-            "volume": round(volume, 2),
-            "amount": round(amount, 2),
-        }, None
-    except Exception as e:
-        return None, str(e)
-
 def get_stock_data(code):
     """获取股票数据"""
     if code.endswith('.HK'):
-        # 先试东方财富
+        # 东方财富数据源
         data, error = get_hk_stock_eastmoney(code)
         if data:
             return data, None
-        # 再试腾讯
-        return get_hk_stock_tencent(code)
     else:
         return get_a_stock(code)
 
 def main():
     if len(sys.argv) < 2:
-        print("用法: python3 stock.py <股票代码>")
-        print("示例: python3 stock.py 600519  (A股)")
-        print("       python3 stock.py 9988.HK (港股)")
+        print("用法:        python3 cnstockinfo.py <股票代码>")
+        print("A股示例:     python3 cnstockinfo.py 600519  (A股)")
+        print("港股示例:    python3 cnstockinfo.py 9988.HK (港股)")
         sys.exit(1)
     
     code = sys.argv[1]
