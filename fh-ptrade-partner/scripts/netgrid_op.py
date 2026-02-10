@@ -10,16 +10,16 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 class APINotice:
     """
     API通知类，用于发送和接收API通知。
-    netgrid策略使用：api_key='sf--cR3T7XP6DfjbvLYtUSMQfB2hv4RfYI7g0kVfSKUYp8'
-    ltpcy策略使用：  api_key='sf-h_C4ZZIFc5w79N_P6OvAYUdGT4Z1HMfWHdthZE-yI20'
+
     """
     def __init__(self, policyName: str = "netgrid"):
         self.urlSend = "https://sinru.com/send"
         self.urlGet = "https://sinru.com/api/messages"
         self.setApikeyByPolicy(policyName=policyName)
+
     def setApikeyByPolicy(self,policyName: str = "netgrid"):
         if policyName =="netgrid":
-            self.api_key = "sf--cR3T7XP6DfjbvLYtUSMQfB2hv4RfYI7g0kVfSKUYp8"
+            self.api_key = "your_netgrid_api_key_here"
         else:
             self.api_key = None
             print("请设置正确的策略名称")   
