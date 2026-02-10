@@ -1,0 +1,10 @@
+# Virtual environment
+.venv/
+venv/
+ENV/
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+# env files
+.env
