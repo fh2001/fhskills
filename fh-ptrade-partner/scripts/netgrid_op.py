@@ -1,15 +1,14 @@
-from io import StringIO
-import sys,requests,ast
+# from io import StringIO
+import requests
 import urllib3 
 import pandas as pd
 import argparse
-# import pystocklib.btlib as bt
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 class APINotice:
     """
-    API通知类，用于发送和接收API通知。
+    API通知类，用于发送和接收API通知。pip
 
     """
     def __init__(self, policyName: str = "netgrid"):
@@ -83,14 +82,30 @@ class APINotice:
         except FileNotFoundError:
             print(f"Warning>>>:{filename}文件未找到！")
             return pd.DataFrame()
+                # read_opplan_json 函数从同目录读取网络策略计划文件(如：netgrid_opplan.json)
+
+    @staticmethod
+    def read_key_json(keyfile):
+        try:
+            with open(keyfile,'r') as data:
+                data = pd.read_json(data)
+
+                df_file = pd.read_json(data,dtype = {'c_date':str,'b_date':str,'c_date_hb':str,
+                                                    'o_date':str,'lastbuydate':str,
+                                                    'trade_date':str,'low_date':str,'first_time':str,
+                                                    'last_time':str},convert_dates=False)
+                return df_file    
+        except FileNotFoundError:
+            print(f"Warning>>>:{filename}文件未找到！")
+            return pd.DataFrame()
 
 def main():
-    print("用法: python3 apinotice.py -h --stockcode <股票代码> --opplan <计划操作> --pcytype <策略类型> --amount <参与金额>")
-    print("查询在线网格策略计划示例: python3 apinotice.py --opplan show")
-    print("上传网格策略计划示例: python3 apinotice.py --opplan upload")
-    print("更改某个股的网格策略计划的参与金额（amount）示例: python3 apinotice.py --stockcode <股票代码> --amount <amount>")
-    print("更改某个股的网格策略计划的策略类型（pcytype）示例: python3 apinotice.py --stockcode <股票代码> --pcytype <pcytype>")
-    print("更改所有个股的网格策略计划的策略类型（pcytype）示例: python3 apinotice.py --pcytype <pcytype>")
+    print("用法: python3 netgrid_op.py -h --stockcode <股票代码> --opplan <计划操作> --pcytype <策略类型> --amount <参与金额>")
+    print("查询在线网格策略计划示例: python3 netgrid_op.py --opplan show")
+    print("上传网格策略计划示例: python3 netgrid_op.py --opplan upload")
+    print("更改某个股的网格策略计划的参与金额（amount）示例: python3 netgrid_op.py --stockcode <股票代码> --amount <amount>")
+    print("更改某个股的网格策略计划的策略类型（pcytype）示例: python3 netgrid_op.py --stockcode <股票代码> --pcytype <pcytype>")
+    print("更改所有个股的网格策略计划的策略类型（pcytype）示例: python3 netgrid_op.py --pcytype <pcytype>")
 
     parser = argparse.ArgumentParser(description="查询 API 通知")
     parser.add_argument("--stockcode", type=str, default="0", help="股票代码, 格式如: 002001.SZ，600001.SH，688001.BJ，09988.HK，9988.HK")
@@ -112,7 +127,7 @@ def main():
         body = "获取opplan"  
         source="netgrid"
         notice.sendNotice(subject,body,source)
-        print("已发送获取opplan请求，请等待...")
+        print("已发送获取opplan请求，请等待2分钟后，在知更鸟通知中查看结果...")
     elif opplan == "UPLOAD" :    # netgrid策略，设置opplan
         subject = "setopplan"
         source="netgrid"
@@ -121,6 +136,7 @@ def main():
         body = df.to_json()
         # print(body)
         notice.sendNotice(subject,body,source)
+        print("已发送设置opplan请求，请等待2分钟后，在知更鸟通知中查看结果...")
     elif stockcode != "0" and pcytype != "0":    # netgrid策略，更改股票的pcytype
         subject = "command"
         source="netgrid"
@@ -128,6 +144,7 @@ def main():
         cmd={"command":"chgpcytype", "stcode_f":stockcode, "pcytype":pcytype}
         body = str(cmd)
         notice.sendNotice(subject,body,source)
+        print("已发送更改股票的pcytype请求，请等待2分钟后，在知更鸟通知中查看结果...")
     elif stockcode == "0" and pcytype != "0":    # 更改所有个股的网格策略计划的策略类型（pcytype）
         subject = "command"
         source="netgrid"
@@ -135,6 +152,7 @@ def main():
         cmd={"command":"chgpcytype", "stcode_f":"000000.00", "pcytype":pcytype}
         body = str(cmd)
         notice.sendNotice(subject,body,source)
+        print("已发送更改所有个股的pcytype请求，请等待2分钟后，在知更鸟通知中查看结果...")
     elif stockcode != "0" and amount != 0:    # netgrid策略，更改股票的 amount
         subject = "command"
         source="netgrid"
@@ -142,6 +160,7 @@ def main():
         cmd={"command":"chgamount", "stcode_f":stockcode, "amount":amount}
         body = str(cmd)
         notice.sendNotice(subject,body,source)
+        print("已发送更改股票的amount请求，请等待2分钟后，在知更鸟通知中查看结果...")
 
 if __name__ == "__main__":
     main()

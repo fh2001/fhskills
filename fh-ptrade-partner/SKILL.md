@@ -44,7 +44,7 @@ Ptrade量化交易网格操作技能（NetGrid Operation）是一个基于API通
 
 ## 使用方法
 
-### 1. 查询在线网格策略计划
+### 1. 查询在线网格策略计划 netgrid_opplan
 ```bash
 python3 netgrid_op.py --opplan show
 ```
