@@ -84,63 +84,64 @@ class APINotice:
             print(f"Warning>>>:{filename}文件未找到！")
             return pd.DataFrame()
 
-    def main():
-        print("用法: python3 apinotice.py -h --stockcode <股票代码> --opplan <计划操作> --pcytype <策略类型> --amount <参与金额>")
-        print("查询在线网格策略计划示例: python3 apinotice.py --opplan show")
-        print("上传网格策略计划示例: python3 apinotice.py --opplan upload")
-        print("更改某个股的网格策略计划的参与金额（amount）示例: python3 apinotice.py --stockcode <股票代码> --amount <amount>")
-        print("更改某个股的网格策略计划的策略类型（pcytype）示例: python3 apinotice.py --stockcode <股票代码> --pcytype <pcytype>")
-        print("更改所有个股的网格策略计划的策略类型（pcytype）示例: python3 apinotice.py --pcytype <pcytype>")
+def main():
+    print("用法: python3 apinotice.py -h --stockcode <股票代码> --opplan <计划操作> --pcytype <策略类型> --amount <参与金额>")
+    print("查询在线网格策略计划示例: python3 apinotice.py --opplan show")
+    print("上传网格策略计划示例: python3 apinotice.py --opplan upload")
+    print("更改某个股的网格策略计划的参与金额（amount）示例: python3 apinotice.py --stockcode <股票代码> --amount <amount>")
+    print("更改某个股的网格策略计划的策略类型（pcytype）示例: python3 apinotice.py --stockcode <股票代码> --pcytype <pcytype>")
+    print("更改所有个股的网格策略计划的策略类型（pcytype）示例: python3 apinotice.py --pcytype <pcytype>")
 
-        parser = argparse.ArgumentParser(description="查询 API 通知")
-        parser.add_argument("--stockcode", type=str, default="0", help="股票代码, 格式如: 002001.SZ，600001.SH，688001.BJ，09988.HK，9988.HK")
-        parser.add_argument("--opplan", type=str, default="0", help="策略计划操作， show：查询在线opplan， upload：上传opplan")
-        parser.add_argument("--pcytype", type=str, default="0", help="设置策略类型， P：暂停， N：网格， A1：次日买入")
-        parser.add_argument("--amount", type=int, default=0, help="设置个股参与金额， 格式如: 100000， 默认0")
+    parser = argparse.ArgumentParser(description="查询 API 通知")
+    parser.add_argument("--stockcode", type=str, default="0", help="股票代码, 格式如: 002001.SZ，600001.SH，688001.BJ，09988.HK，9988.HK")
+    parser.add_argument("--opplan", type=str, default="0", help="策略计划操作， show：查询在线opplan， upload：上传opplan")
+    parser.add_argument("--pcytype", type=str, default="0", help="设置策略类型， P：暂停， N：网格， A1：次日买入")
+    parser.add_argument("--amount", type=int, default=0, help="设置个股参与金额， 格式如: 100000， 默认0")
 
-        args = parser.parse_args()
+    args = parser.parse_args()
 
-        stockcode = args.stockcode.upper()
+    stockcode = args.stockcode.upper()
 
-        opplan = args.opplan.upper()
-        pcytype = args.pcytype.upper()
-        amount = args.amount
-    
-        notice = APINotice()
-        if opplan == "SHOW" :    # netgrid策略，获取opplan
-            subject = "getopplan"
-            body = "获取opplan"  
-            source="netgrid"
-            notice.sendNotice(subject,body,source)
-        elif opplan == "UPLOAD" :    # netgrid策略，设置opplan
-            subject = "setopplan"
-            source="netgrid"
-            df = notice.read_opplan_json('netgrid_opplan.json')
-            #将df转换成字符串
-            body = df.to_json()
-            # print(body)
-            notice.sendNotice(subject,body,source)
-        elif stockcode != "0" and pcytype != "0":    # netgrid策略，更改股票的pcytype
-            subject = "command"
-            source="netgrid"
-            #（1）更改某监控股的pcytype,body={"command":"chgpcytype", "stcode_f":"000001.SZ", "pcytype":"P"}
-            cmd={"command":"chgpcytype", "stcode_f":stockcode, "pcytype":pcytype}
-            body = str(cmd)
-            notice.sendNotice(subject,body,source)
-        elif stockcode == "0" and pcytype != "0":    # 更改所有个股的网格策略计划的策略类型（pcytype）
-            subject = "command"
-            source="netgrid"
-            #（1）更改某监控股的pcytype,body={"command":"chgpcytype", "stcode_f":"000001.SZ", "pcytype":"P"}
-            cmd={"command":"chgpcytype", "stcode_f":"000000.00", "pcytype":pcytype}
-            body = str(cmd)
-            notice.sendNotice(subject,body,source)
-        elif stockcode != "0" and amount != 0:    # netgrid策略，更改股票的 amount
-            subject = "command"
-            source="netgrid"
-            #（1）更改某监控股的amount,body={"command":"chgamount", "stcode_f":"000001.SZ", "amount":150000}
-            cmd={"command":"chgamount", "stcode_f":stockcode, "amount":amount}
-            body = str(cmd)
-            notice.sendNotice(subject,body,source)
+    opplan = args.opplan.upper()
+    pcytype = args.pcytype.upper()
+    amount = args.amount
+
+    notice = APINotice()
+    if opplan == "SHOW" :    # netgrid策略，获取opplan
+        subject = "getopplan"
+        body = "获取opplan"  
+        source="netgrid"
+        notice.sendNotice(subject,body,source)
+        print("已发送获取opplan请求，请等待...")
+    elif opplan == "UPLOAD" :    # netgrid策略，设置opplan
+        subject = "setopplan"
+        source="netgrid"
+        df = notice.read_opplan_json('netgrid_opplan.json')
+        #将df转换成字符串
+        body = df.to_json()
+        # print(body)
+        notice.sendNotice(subject,body,source)
+    elif stockcode != "0" and pcytype != "0":    # netgrid策略，更改股票的pcytype
+        subject = "command"
+        source="netgrid"
+        #（1）更改某监控股的pcytype,body={"command":"chgpcytype", "stcode_f":"000001.SZ", "pcytype":"P"}
+        cmd={"command":"chgpcytype", "stcode_f":stockcode, "pcytype":pcytype}
+        body = str(cmd)
+        notice.sendNotice(subject,body,source)
+    elif stockcode == "0" and pcytype != "0":    # 更改所有个股的网格策略计划的策略类型（pcytype）
+        subject = "command"
+        source="netgrid"
+        #（1）更改某监控股的pcytype,body={"command":"chgpcytype", "stcode_f":"000001.SZ", "pcytype":"P"}
+        cmd={"command":"chgpcytype", "stcode_f":"000000.00", "pcytype":pcytype}
+        body = str(cmd)
+        notice.sendNotice(subject,body,source)
+    elif stockcode != "0" and amount != 0:    # netgrid策略，更改股票的 amount
+        subject = "command"
+        source="netgrid"
+        #（1）更改某监控股的amount,body={"command":"chgamount", "stcode_f":"000001.SZ", "amount":150000}
+        cmd={"command":"chgamount", "stcode_f":stockcode, "amount":amount}
+        body = str(cmd)
+        notice.sendNotice(subject,body,source)
 
 if __name__ == "__main__":
     main()
